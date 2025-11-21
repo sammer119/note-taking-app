@@ -1,26 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAppStore } from "@/store/store";
 import { useNote } from "@/hooks/useNotes";
-import { updateNote } from "@/lib/storage";
+import { updateNote } from "@/lib/storage-adapter";
 import { Editor } from "@/components/editor/Editor";
 import { Input } from "@/components/ui/input";
 import { FileText } from "lucide-react";
 
 export function NoteEditor() {
-  const { activeNoteId } = useAppStore();
-  const { note } = useNote(activeNoteId);
+  const { activeNoteId, activeNotebookId, updateNoteInCache } = useAppStore();
+  const { note, refresh } = useNote(activeNoteId);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [titleSaveTimeout, setTitleSaveTimeout] = useState<NodeJS.Timeout | null>(null);
   const [contentSaveTimeout, setContentSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (note) {
       setTitle(note.title);
       setContent(note.content);
+
+      // Focus and select title if it's a new "Untitled Note"
+      if (note.title === "Untitled Note" && note.content === "") {
+        setTimeout(() => {
+          titleInputRef.current?.focus();
+          titleInputRef.current?.select();
+        }, 100);
+      }
     } else {
       setTitle("");
       setContent("");
@@ -38,6 +47,11 @@ export function NoteEditor() {
         setIsSaving(true);
         try {
           await updateNote(activeNoteId, { title: newTitle });
+          await refresh();
+          // Update the cache immediately to reflect changes in the notes list
+          if (activeNotebookId) {
+            updateNoteInCache(activeNotebookId, activeNoteId, { title: newTitle });
+          }
           // Keep "Saving..." visible for 500ms after save completes
           setTimeout(() => setIsSaving(false), 500);
         } catch (error) {
@@ -61,6 +75,11 @@ export function NoteEditor() {
         setIsSaving(true);
         try {
           await updateNote(activeNoteId, { content: newContent });
+          await refresh();
+          // Update the cache immediately to reflect changes in the notes list
+          if (activeNotebookId) {
+            updateNoteInCache(activeNotebookId, activeNoteId, { content: newContent });
+          }
           // Keep "Saving..." visible for 500ms after save completes
           setTimeout(() => setIsSaving(false), 500);
         } catch (error) {
@@ -98,6 +117,7 @@ export function NoteEditor() {
       <div className="border-b p-4">
         <div className="flex items-center justify-between mb-2">
           <Input
+            ref={titleInputRef}
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
             placeholder="Note title"

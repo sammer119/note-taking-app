@@ -59,7 +59,7 @@ export function NoteItem({ note, isActive, onClick, onDelete }: NoteItemProps) {
               {note.title || "Untitled Note"}
             </h3>
           </div>
-          <p className="text-xs text-muted-foreground line-clamp-2">
+          <p className="text-xs text-muted-foreground line-clamp-2 wrap-break-word">
             {getPreviewText(note.content)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">

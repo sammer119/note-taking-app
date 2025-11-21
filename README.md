@@ -1,14 +1,18 @@
 # Notes App - Modern Note-Taking Application
 
-A feature-rich, Evernote-alternative note-taking application built with Next.js, TypeScript, and modern web technologies.
+A feature-rich, Evernote-alternative note-taking application built with Next.js, TypeScript, and modern web technologies. Works offline with local storage or online with Supabase cloud sync.
 
 ## Features
 
 - **Notebooks**: Organize notes into separate notebooks
 - **Rich Text Editor**: Powered by Tiptap with support for formatting (bold, italic, headings, lists, etc.)
-- **Local Storage**: Client-side storage using IndexedDB (no backend required)
+- **Image Support**: Upload and embed images directly in your notes (Supabase mode)
+- **Dual Storage Modes**:
+  - **Local Mode**: Client-side storage using IndexedDB (no backend required, works offline)
+  - **Cloud Mode**: Supabase backend for cloud sync and image uploads
 - **Real-time Updates**: Automatic UI updates when data changes
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Dark Mode**: Built-in light/dark theme support
 - **Modern UI**: Clean, distraction-free interface built with Tailwind CSS
 
 ## Tech Stack
@@ -57,6 +61,7 @@ note-taking-app/
 
 - Node.js 18.x or higher
 - npm, yarn, or pnpm
+- (Optional) Supabase account for cloud sync
 
 ### Installation
 
@@ -67,17 +72,31 @@ note-taking-app/
 npm install
 ```
 
-3. Copy the environment template:
-```bash
-cp .env.local.example .env.local
-```
-
-4. Run the development server:
+3. Run the development server:
 ```bash
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+**That's it!** The app will run in **Local Mode** using IndexedDB for storage.
+
+### Optional: Enable Cloud Sync with Supabase
+
+To enable cloud storage and image uploads:
+
+1. Follow the detailed setup guide in [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+
+2. Create a `.env.local` file with your Supabase credentials:
+```bash
+cp .env.local.example .env.local
+```
+
+3. Add your Supabase URL and API key to `.env.local`
+
+4. Restart the development server
+
+The app will automatically detect Supabase configuration and switch to **Cloud Mode**.
 
 ## Development
 

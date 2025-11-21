@@ -6,10 +6,18 @@ import { NoteItem } from "./NoteItem";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus } from "lucide-react";
+import { useEffect } from "react";
 
 export function NoteList() {
   const { activeNotebookId, activeNoteId, setActiveNote } = useAppStore();
   const { notes, create, remove } = useNotes(activeNotebookId);
+
+  // Auto-select the first note (most recently edited) when notes are loaded
+  useEffect(() => {
+    if (notes.length > 0 && !activeNoteId) {
+      setActiveNote(notes[0].id);
+    }
+  }, [notes, activeNoteId, setActiveNote]);
 
   const handleCreateNote = async () => {
     if (!activeNotebookId) return;
@@ -49,7 +57,7 @@ export function NoteList() {
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-2 space-y-2">
+        <div className="pl-2 pr-3 py-2 space-y-2">
           {notes.length === 0 ? (
             <div className="text-center text-sm text-muted-foreground py-8">
               No notes yet.

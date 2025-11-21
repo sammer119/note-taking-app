@@ -1,25 +1,44 @@
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import { useState, useEffect } from "react";
 import {
   createNotebook,
   updateNotebook,
   deleteNotebook,
-} from "@/lib/storage";
+  getAllNotebooks,
+} from "@/lib/storage-adapter";
 import { CreateNotebookDTO, UpdateNotebookDTO, Notebook } from "@/types";
 
 /**
  * Custom hook for managing notebooks
- * Provides real-time updates from IndexedDB
+ * Provides real-time updates from Supabase
  */
 export function useNotebooks() {
-  // Live query that automatically updates when the database changes
-  const notebooks = useLiveQuery(
-    async () => await db.notebooks.orderBy("updatedAt").reverse().toArray(),
-    []
-  );
+  const [notebooks, setNotebooks] = useState<Notebook[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Fetch notebooks on mount
+  useEffect(() => {
+    loadNotebooks();
+  }, []);
+
+  const loadNotebooks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAllNotebooks();
+      setNotebooks(data);
+    } catch (err) {
+      setError(err as Error);
+      console.error("Failed to load notebooks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const create = async (data: CreateNotebookDTO): Promise<Notebook> => {
-    return await createNotebook(data);
+    const notebook = await createNotebook(data);
+    await loadNotebooks(); // Refresh list
+    return notebook;
   };
 
   const update = async (
@@ -27,17 +46,21 @@ export function useNotebooks() {
     data: UpdateNotebookDTO
   ): Promise<void> => {
     await updateNotebook(id, data);
+    await loadNotebooks(); // Refresh list
   };
 
   const remove = async (id: string): Promise<void> => {
     await deleteNotebook(id);
+    await loadNotebooks(); // Refresh list
   };
 
   return {
-    notebooks: notebooks ?? [],
-    loading: notebooks === undefined,
+    notebooks,
+    loading,
+    error,
     create,
     update,
     remove,
+    refresh: loadNotebooks,
   };
 }

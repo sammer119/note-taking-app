@@ -219,3 +219,51 @@ input::placeholder {
 .prose-editor .tiptap s {
   text-decoration: line-through;
 }
+
+/* Image Resizer Styles */
+.prose-editor .tiptap .image-resizer-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.prose-editor .tiptap .image-resizer-container img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+}
+
+.prose-editor .tiptap .image-border-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 3px solid #3b82f6;
+  border-radius: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.prose-editor .tiptap .image-resize-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  border: 2px solid white;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dark .prose-editor .tiptap .image-border-overlay {
+  border-color: #3b82f6;
+}
+
+.dark .prose-editor .tiptap .image-resize-handle {
+  border-color: #1f2937;
+}

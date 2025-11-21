@@ -20,15 +20,64 @@ import {
   AlignCenter,
   AlignRight,
   Highlighter,
+  Image as ImageIcon,
 } from "lucide-react";
+import { useRef, useState } from "react";
+import { uploadImage } from "@/lib/storage-adapter";
 
 interface EditorToolbarProps {
   editor: Editor;
 }
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const imageUrl = await uploadImage(file);
+
+      // Insert image into editor
+      editor.chain().focus().setImage({ src: imageUrl }).run();
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      alert('Failed to upload image. Please make sure Supabase is configured correctly.');
+    } finally {
+      setUploading(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="border-b p-2 flex flex-wrap gap-1">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
+
       {/* Text formatting */}
       <Button
         variant={editor.isActive("bold") ? "secondary" : "ghost"}
@@ -184,6 +233,19 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         title="Align Right"
       >
         <AlignRight className="h-4 w-4" />
+      </Button>
+
+      <div className="w-px h-6 bg-border mx-1" />
+
+      {/* Image Upload */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={uploading}
+        title="Insert Image"
+      >
+        <ImageIcon className="h-4 w-4" />
       </Button>
 
       <div className="w-px h-6 bg-border mx-1" />
