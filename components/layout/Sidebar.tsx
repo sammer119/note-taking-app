@@ -5,7 +5,8 @@ import { NotebookList } from "@/components/notebook/NotebookList";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SearchDialog } from "@/components/search/SearchDialog";
 import { Button } from "@/components/ui/button";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -14,6 +15,11 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const [searchOpen, setSearchOpen] = useState(false);
+  const { signOut, user } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <>
@@ -60,8 +66,21 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <NotebookList isCollapsed={isCollapsed} />
         </div>
 
-        {/* Theme Toggle - Bottom Right */}
-        <div className="p-3">
+        {/* Bottom Actions */}
+        <div className="p-3 space-y-2">
+          {/* Sign Out Button */}
+          <Button
+            variant="ghost"
+            className={`w-full ${isCollapsed ? 'justify-center' : 'justify-start'} text-muted-foreground hover:text-destructive`}
+            size="sm"
+            onClick={handleSignOut}
+            title={isCollapsed ? "Sign out" : ""}
+          >
+            <LogOut className="h-4 w-4" />
+            {!isCollapsed && <span className="ml-2">Sign Out</span>}
+          </Button>
+
+          {/* Theme Toggle */}
           <div className={`flex ${isCollapsed ? 'justify-center' : 'justify-end'}`}>
             <ThemeToggle />
           </div>

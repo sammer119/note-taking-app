@@ -1,18 +1,29 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, protocol } from "electron";
 import path from "path";
 import Database from "better-sqlite3";
-import { existsSync } from "fs";
+import { readFile } from "fs/promises";
 
 let mainWindow: BrowserWindow | null = null;
 let db: Database.Database | null = null;
 
-// Check if we're in development mode
-const isDev =
-  process.env.NODE_ENV === "development" ||
-  !app.isPackaged ||
-  !existsSync(path.join(__dirname, "../out/index.html"));
+// Register custom protocol as privileged BEFORE app is ready
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "app",
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+      allowServiceWorkers: true,
+    },
+  },
+]);
 
 function createWindow() {
+  // Check if we're in development mode
+  const isDev = !app.isPackaged;
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -27,8 +38,13 @@ function createWindow() {
     mainWindow.loadURL("http://localhost:3000");
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../out/index.html"));
+    // In production, use app:// protocol
+    mainWindow.loadURL("app://./index.html");
   }
+
+  mainWindow.webContents.on("did-fail-load", (_, errorCode, errorDescription) => {
+    console.error("Failed to load:", errorCode, errorDescription);
+  });
 
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -36,37 +52,73 @@ function createWindow() {
 }
 
 function initDatabase() {
-  const userDataPath = app.getPath("userData");
-  const dbPath = path.join(userDataPath, "notes.db");
+  try {
+    const userDataPath = app.getPath("userData");
+    const dbPath = path.join(userDataPath, "notes.db");
 
-  db = new Database(dbPath);
+    db = new Database(dbPath);
 
-  // Create tables if they don't exist
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS notebooks (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      createdAt INTEGER NOT NULL,
-      updatedAt INTEGER NOT NULL
-    );
+    // Create tables if they don't exist
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS notebooks (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL
+      );
 
-    CREATE TABLE IF NOT EXISTS notes (
-      id TEXT PRIMARY KEY,
-      notebookId TEXT NOT NULL,
-      title TEXT NOT NULL,
-      content TEXT NOT NULL,
-      createdAt INTEGER NOT NULL,
-      updatedAt INTEGER NOT NULL,
-      FOREIGN KEY (notebookId) REFERENCES notebooks(id) ON DELETE CASCADE
-    );
+      CREATE TABLE IF NOT EXISTS notes (
+        id TEXT PRIMARY KEY,
+        notebookId TEXT NOT NULL,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        FOREIGN KEY (notebookId) REFERENCES notebooks(id) ON DELETE CASCADE
+      );
 
-    CREATE INDEX IF NOT EXISTS idx_notes_notebookId ON notes(notebookId);
-    CREATE INDEX IF NOT EXISTS idx_notes_updatedAt ON notes(updatedAt);
-    CREATE INDEX IF NOT EXISTS idx_notebooks_updatedAt ON notebooks(updatedAt);
-  `);
+      CREATE INDEX IF NOT EXISTS idx_notes_notebookId ON notes(notebookId);
+      CREATE INDEX IF NOT EXISTS idx_notes_updatedAt ON notes(updatedAt);
+      CREATE INDEX IF NOT EXISTS idx_notebooks_updatedAt ON notebooks(updatedAt);
+    `);
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+  }
 }
 
 app.whenReady().then(() => {
+  // Register custom protocol for loading static files
+  protocol.handle("app", async (request) => {
+    const filePath = request.url.slice("app://".length);
+    const normalizedPath = path.normalize(filePath);
+    const fullPath = path.join(process.resourcesPath, "out", normalizedPath);
+
+    try {
+      const data = await readFile(fullPath);
+      // Determine content type based on file extension
+      const ext = path.extname(fullPath).toLowerCase();
+      const mimeTypes: { [key: string]: string } = {
+        ".html": "text/html",
+        ".css": "text/css",
+        ".js": "text/javascript",
+        ".json": "application/json",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".svg": "image/svg+xml",
+        ".woff": "font/woff",
+        ".woff2": "font/woff2",
+      };
+      const contentType = mimeTypes[ext] || "application/octet-stream";
+
+      return new Response(data, {
+        headers: { "content-type": contentType },
+      });
+    } catch (error) {
+      console.error("Failed to load:", fullPath, error);
+      return new Response("Not found", { status: 404 });
+    }
+  });
+
   initDatabase();
   createWindow();
 

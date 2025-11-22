@@ -12,22 +12,25 @@ export interface Database {
       notebooks: {
         Row: {
           id: string;
+          user_id: string;
           name: string;
-          color: string;
+          icon: string;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
+          user_id: string;
           name: string;
-          color?: string;
+          icon?: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
+          user_id?: string;
           name?: string;
-          color?: string;
+          icon?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -35,25 +38,28 @@ export interface Database {
       notes: {
         Row: {
           id: string;
-          notebook_id: string;
+          user_id: string;
+          notebook_id: string | null;
           title: string;
-          content: string;
+          content: Json;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
-          notebook_id: string;
-          title: string;
-          content?: string;
+          user_id: string;
+          notebook_id?: string | null;
+          title?: string;
+          content?: Json;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          notebook_id?: string;
+          user_id?: string;
+          notebook_id?: string | null;
           title?: string;
-          content?: string;
+          content?: Json;
           created_at?: string;
           updated_at?: string;
         };

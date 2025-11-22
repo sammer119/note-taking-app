@@ -27,7 +27,10 @@ export const supabase = createClient<Database>(
   supabaseAnonKey || dummyKey,
   {
     auth: {
-      persistSession: false, // We'll add auth later
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     },
   }
 );
