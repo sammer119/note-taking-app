@@ -49,7 +49,7 @@ export function NoteList() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-2 border-b">
+      <div className="p-2 pb-3">
         <Button onClick={handleCreateNote} className="w-full" size="sm" variant="outline">
           <Plus className="h-4 w-4 mr-2" />
           New Note

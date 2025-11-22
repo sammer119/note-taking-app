@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@radix-ui/react-toast": "^1.2.15",
     "@tiptap/extension-highlight": "^3.11.0",
     "@tiptap/extension-image": "^3.11.0",
     "@tiptap/extension-placeholder": "^3.11.0",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNotebooks } from "@/hooks/useNotebooks";
 import { useAppStore } from "@/store/store";
 import { NotebookItem } from "./NotebookItem";
@@ -17,6 +17,13 @@ export function NotebookList() {
     id: string;
     name: string;
   } | null>(null);
+
+  // Auto-select the first notebook (most recently updated) when notebooks are loaded
+  useEffect(() => {
+    if (notebooks.length > 0 && !activeNotebookId) {
+      setActiveNotebook(notebooks[0].id);
+    }
+  }, [notebooks, activeNotebookId, setActiveNotebook]);
 
   const handleCreate = async (name: string) => {
     const notebook = await create({ name });
@@ -40,7 +47,7 @@ export function NotebookList() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-2 border-b border-sidebar-border">
+      <div className="p-2 pb-3">
         <Button
           onClick={() => setIsCreateOpen(true)}
           className="w-full"

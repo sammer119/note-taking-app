@@ -68,7 +68,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   };
 
   return (
-    <div className="border-b p-2 flex flex-wrap gap-1">
+    <div className="sticky top-0 z-10 border-x border-t border-b p-2 flex flex-wrap gap-1 bg-editor-background rounded-t-lg">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -80,55 +80,61 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       {/* Text formatting */}
       <Button
-        variant={editor.isActive("bold") ? "secondary" : "ghost"}
+        variant={editor.isActive("bold") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleBold().run()}
         title="Bold"
+        className={editor.isActive("bold") ? "bg-primary text-primary-foreground" : ""}
       >
         <Bold className="h-4 w-4" />
       </Button>
 
       <Button
-        variant={editor.isActive("italic") ? "secondary" : "ghost"}
+        variant={editor.isActive("italic") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         title="Italic"
+        className={editor.isActive("italic") ? "bg-primary text-primary-foreground" : ""}
       >
         <Italic className="h-4 w-4" />
       </Button>
 
       <Button
-        variant={editor.isActive("underline") ? "secondary" : "ghost"}
+        variant={editor.isActive("underline") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         title="Underline"
+        className={editor.isActive("underline") ? "bg-primary text-primary-foreground" : ""}
       >
         <UnderlineIcon className="h-4 w-4" />
       </Button>
 
       <Button
-        variant={editor.isActive("strike") ? "secondary" : "ghost"}
+        variant={editor.isActive("strike") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleStrike().run()}
         title="Strikethrough"
+        className={editor.isActive("strike") ? "bg-primary text-primary-foreground" : ""}
       >
         <Strikethrough className="h-4 w-4" />
       </Button>
 
       <Button
-        variant={editor.isActive("code") ? "secondary" : "ghost"}
+        variant={editor.isActive("code") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleCode().run()}
         title="Code"
+        className={editor.isActive("code") ? "bg-primary text-primary-foreground" : ""}
       >
         <Code className="h-4 w-4" />
       </Button>
 
       <Button
-        variant={editor.isActive("highlight") ? "secondary" : "ghost"}
+        variant={editor.isActive("highlight") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleHighlight().run()}
         title="Highlight"
+        className={editor.isActive("highlight") ? "bg-primary text-primary-foreground" : ""}
       >
         <Highlighter className="h-4 w-4" />
       </Button>
@@ -138,33 +144,36 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       {/* Headings */}
       <Button
         variant={
-          editor.isActive("heading", { level: 1 }) ? "secondary" : "ghost"
+          editor.isActive("heading", { level: 1 }) ? "default" : "ghost"
         }
         size="sm"
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         title="Heading 1"
+        className={editor.isActive("heading", { level: 1 }) ? "bg-primary text-primary-foreground" : ""}
       >
         <Heading1 className="h-4 w-4" />
       </Button>
 
       <Button
         variant={
-          editor.isActive("heading", { level: 2 }) ? "secondary" : "ghost"
+          editor.isActive("heading", { level: 2 }) ? "default" : "ghost"
         }
         size="sm"
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         title="Heading 2"
+        className={editor.isActive("heading", { level: 2 }) ? "bg-primary text-primary-foreground" : ""}
       >
         <Heading2 className="h-4 w-4" />
       </Button>
 
       <Button
         variant={
-          editor.isActive("heading", { level: 3 }) ? "secondary" : "ghost"
+          editor.isActive("heading", { level: 3 }) ? "default" : "ghost"
         }
         size="sm"
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
         title="Heading 3"
+        className={editor.isActive("heading", { level: 3 }) ? "bg-primary text-primary-foreground" : ""}
       >
         <Heading3 className="h-4 w-4" />
       </Button>
@@ -173,28 +182,31 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
       {/* Lists */}
       <Button
-        variant={editor.isActive("bulletList") ? "secondary" : "ghost"}
+        variant={editor.isActive("bulletList") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         title="Bullet List"
+        className={editor.isActive("bulletList") ? "bg-primary text-primary-foreground" : ""}
       >
         <List className="h-4 w-4" />
       </Button>
 
       <Button
-        variant={editor.isActive("orderedList") ? "secondary" : "ghost"}
+        variant={editor.isActive("orderedList") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         title="Numbered List"
+        className={editor.isActive("orderedList") ? "bg-primary text-primary-foreground" : ""}
       >
         <ListOrdered className="h-4 w-4" />
       </Button>
 
       <Button
-        variant={editor.isActive("blockquote") ? "secondary" : "ghost"}
+        variant={editor.isActive("blockquote") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
         title="Quote"
+        className={editor.isActive("blockquote") ? "bg-primary text-primary-foreground" : ""}
       >
         <Quote className="h-4 w-4" />
       </Button>
@@ -204,33 +216,36 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       {/* Alignment */}
       <Button
         variant={
-          editor.isActive({ textAlign: "left" }) ? "secondary" : "ghost"
+          editor.isActive({ textAlign: "left" }) ? "default" : "ghost"
         }
         size="sm"
         onClick={() => editor.chain().focus().setTextAlign("left").run()}
         title="Align Left"
+        className={editor.isActive({ textAlign: "left" }) ? "bg-primary text-primary-foreground" : ""}
       >
         <AlignLeft className="h-4 w-4" />
       </Button>
 
       <Button
         variant={
-          editor.isActive({ textAlign: "center" }) ? "secondary" : "ghost"
+          editor.isActive({ textAlign: "center" }) ? "default" : "ghost"
         }
         size="sm"
         onClick={() => editor.chain().focus().setTextAlign("center").run()}
         title="Align Center"
+        className={editor.isActive({ textAlign: "center" }) ? "bg-primary text-primary-foreground" : ""}
       >
         <AlignCenter className="h-4 w-4" />
       </Button>
 
       <Button
         variant={
-          editor.isActive({ textAlign: "right" }) ? "secondary" : "ghost"
+          editor.isActive({ textAlign: "right" }) ? "default" : "ghost"
         }
         size="sm"
         onClick={() => editor.chain().focus().setTextAlign("right").run()}
         title="Align Right"
+        className={editor.isActive({ textAlign: "right" }) ? "bg-primary text-primary-foreground" : ""}
       >
         <AlignRight className="h-4 w-4" />
       </Button>

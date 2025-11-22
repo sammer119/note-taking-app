@@ -29,30 +29,30 @@
 }
 
 .dark {
-  /* Dark Theme - only note cards and editor are dark (#141414), everything else is lighter (#262626) */
-  --background: #262626;
+  /* Dark Theme - Layered depth with distinct surfaces */
+  --background: #0a0a0a;
   --foreground: 0 0% 95%;
-  --card: #141414;
+  --card: #1a1a1a;
   --card-foreground: 0 0% 95%;
-  --popover: #262626;
+  --popover: #1f1f1f;
   --popover-foreground: 0 0% 95%;
-  --primary: 0 0% 95%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: #262626;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: #1f1f1f;
   --secondary-foreground: 0 0% 95%;
-  --muted: 0 0% 22%;
-  --muted-foreground: 0 0% 60%;
-  --accent: #2e2e2e;
+  --muted: 0 0% 18%;
+  --muted-foreground: 0 0% 55%;
+  --accent: #252525;
   --accent-foreground: 0 0% 95%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 95%;
-  --border: 0 0% 25%;
+  --border: 0 0% 20%;
   --input: 0 0% 25%;
   --ring: 0 0% 60%;
-  --sidebar-background: #262626;
-  --sidebar-border: 0 0% 20%;
-  --note-list-background: #262626;
-  --editor-background: #141414;
+  --sidebar-background: #0f0f0f;
+  --sidebar-border: 0 0% 15%;
+  --note-list-background: #000000;
+  --editor-background: #0a0a0a;
 }
 
 @theme inline {

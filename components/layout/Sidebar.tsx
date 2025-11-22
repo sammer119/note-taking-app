@@ -5,8 +5,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Sidebar() {
   return (
-    <aside className="w-64 border-r bg-sidebar-background flex flex-col h-screen">
-      <div className="p-4 border-b border-sidebar-border">
+    <aside className="w-64 bg-sidebar-background flex flex-col h-screen">
+      <div className="p-4">
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-xl font-bold">Notes</h1>
           <ThemeToggle />

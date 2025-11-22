@@ -275,7 +275,7 @@ export function Editor({ content, onChange, placeholder }: EditorProps) {
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none max-w-none min-h-[400px] p-4",
+          "prose prose-base focus:outline-none max-w-none min-h-[400px] p-4 w-full",
       },
       handleDrop: (view, event, _slice, moved) => {
         console.log('Drop event triggered');
