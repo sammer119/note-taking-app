@@ -25,11 +25,12 @@ export async function createNotebook(
     .insert({
       name: data.name,
       color: '#3b82f6',
-    })
+    } as any)
     .select()
-    .single();
+    .single() as any;
 
   if (error) throw error;
+  if (!notebook) throw new Error('Failed to create notebook');
 
   return {
     id: notebook.id,
@@ -46,11 +47,12 @@ export async function getAllNotebooks(): Promise<Notebook[]> {
   const { data: notebooks, error } = await supabase
     .from('notebooks')
     .select('*')
-    .order('updated_at', { ascending: false });
+    .order('updated_at', { ascending: false }) as any;
 
   if (error) throw error;
+  if (!notebooks) return [];
 
-  return notebooks.map((nb) => ({
+  return notebooks.map((nb: any) => ({
     id: nb.id,
     name: nb.name,
     createdAt: new Date(nb.created_at),
@@ -66,12 +68,13 @@ export async function getNotebook(id: string): Promise<Notebook | null> {
     .from('notebooks')
     .select('*')
     .eq('id', id)
-    .single();
+    .single() as any;
 
   if (error) {
     if (error.code === 'PGRST116') return null; // Not found
     throw error;
   }
+  if (!notebook) return null;
 
   return {
     id: notebook.id,
@@ -88,13 +91,13 @@ export async function updateNotebook(
   id: string,
   data: UpdateNotebookDTO
 ): Promise<void> {
-  const { error } = await supabase
-    .from('notebooks')
+  const { error } = (await (supabase
+    .from('notebooks') as any)
     .update({
       name: data.name,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', id);
+    .eq('id', id)) as any;
 
   if (error) throw error;
 }
@@ -121,11 +124,12 @@ export async function createNote(data: CreateNoteDTO): Promise<Note> {
       notebook_id: data.notebookId,
       title: data.title,
       content: data.content || '',
-    })
+    } as any)
     .select()
-    .single();
+    .single() as any;
 
   if (error) throw error;
+  if (!note) throw new Error('Failed to create note');
 
   return {
     id: note.id,
@@ -145,11 +149,12 @@ export async function getNotesByNotebook(notebookId: string): Promise<Note[]> {
     .from('notes')
     .select('*')
     .eq('notebook_id', notebookId)
-    .order('updated_at', { ascending: false });
+    .order('updated_at', { ascending: false }) as any;
 
   if (error) throw error;
+  if (!notes) return [];
 
-  return notes.map((note) => ({
+  return notes.map((note: any) => ({
     id: note.id,
     notebookId: note.notebook_id,
     title: note.title,
@@ -167,12 +172,13 @@ export async function getNote(id: string): Promise<Note | null> {
     .from('notes')
     .select('*')
     .eq('id', id)
-    .single();
+    .single() as any;
 
   if (error) {
     if (error.code === 'PGRST116') return null; // Not found
     throw error;
   }
+  if (!note) return null;
 
   return {
     id: note.id,
@@ -200,10 +206,10 @@ export async function updateNote(id: string, data: UpdateNoteDTO): Promise<void>
     updateData.content = data.content;
   }
 
-  const { error } = await supabase
-    .from('notes')
+  const { error } = (await (supabase
+    .from('notes') as any)
     .update(updateData)
-    .eq('id', id);
+    .eq('id', id)) as any;
 
   if (error) throw error;
 }
@@ -225,11 +231,12 @@ export async function searchNotes(query: string): Promise<Note[]> {
     .from('notes')
     .select('*')
     .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
-    .order('updated_at', { ascending: false });
+    .order('updated_at', { ascending: false }) as any;
 
   if (error) throw error;
+  if (!notes) return [];
 
-  return notes.map((note) => ({
+  return notes.map((note: any) => ({
     id: note.id,
     notebookId: note.notebook_id,
     title: note.title,

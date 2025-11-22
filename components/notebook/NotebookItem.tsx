@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Notebook } from "@/types";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MoreVertical, Pencil, Trash2 } from "lucide-react";
@@ -11,6 +12,7 @@ interface NotebookItemProps {
   onClick: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  isCollapsed?: boolean;
 }
 
 export function NotebookItem({
@@ -19,19 +21,35 @@ export function NotebookItem({
   onClick,
   onEdit,
   onDelete,
+  isCollapsed = false,
 }: NotebookItemProps) {
   const [showMenu, setShowMenu] = useState(false);
+
+  if (isCollapsed) {
+    return (
+      <div
+        className={cn(
+          "group flex items-center justify-center p-3 rounded-lg cursor-pointer transition-colors hover:bg-accent",
+          isActive && "bg-accent"
+        )}
+        onClick={onClick}
+        title={notebook.name}
+      >
+        <BookOpen className="h-4 w-4 text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div
       className={cn(
-        "group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors hover:bg-accent",
+        "group flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-accent",
         isActive && "bg-accent"
       )}
       onClick={onClick}
     >
       <div className="flex items-center gap-2 flex-1 min-w-0">
-        <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
         <span className="truncate text-sm font-medium">{notebook.name}</span>
       </div>
 
@@ -78,5 +96,3 @@ export function NotebookItem({
     </div>
   );
 }
-
-import { useState } from "react";

@@ -7,9 +7,18 @@ import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import Typography from "@tiptap/extension-typography";
+import { common, createLowlight } from "lowlight";
 import { EditorToolbar } from "./EditorToolbar";
 import { useEffect } from "react";
 import { uploadImage } from "@/lib/storage-adapter";
+
+const lowlight = createLowlight(common);
 
 interface EditorProps {
   content: string;
@@ -255,7 +264,18 @@ export function Editor({ content, onChange, placeholder }: EditorProps) {
         heading: {
           levels: [1, 2, 3],
         },
+        codeBlock: false, // Disable default code block to use CodeBlockLowlight
       }),
+      CodeBlockLowlight.configure({
+        lowlight,
+        defaultLanguage: "javascript",
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableCell,
+      TableHeader,
       Placeholder.configure({
         placeholder: placeholder || "Start writing your note...",
       }),
@@ -270,12 +290,13 @@ export function Editor({ content, onChange, placeholder }: EditorProps) {
         inline: true,
         allowBase64: true,
       }),
+      Typography,
     ],
     content,
     editorProps: {
       attributes: {
         class:
-          "prose prose-base focus:outline-none max-w-none min-h-[400px] p-4 w-full",
+          "prose prose-base focus:outline-none max-w-none min-h-[400px] w-full",
       },
       handleDrop: (view, event, _slice, moved) => {
         console.log('Drop event triggered');
@@ -418,9 +439,9 @@ export function Editor({ content, onChange, placeholder }: EditorProps) {
   }
 
   return (
-    <div className="border rounded-lg bg-background">
+    <div className="bg-transparent px-8">
       <EditorToolbar editor={editor} />
-      <div className="prose-editor">
+      <div className="prose-editor pb-8">
         <EditorContent editor={editor} />
       </div>
     </div>

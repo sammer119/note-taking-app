@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { AppState, Note } from "@/types";
+import { AppState, Note, Notebook } from "@/types";
 
 /**
- * Extended AppState with notes cache
+ * Extended AppState with notes cache and notebooks
  */
 interface ExtendedAppState extends AppState {
   notesCache: Record<string, Note[]>;
@@ -10,6 +10,8 @@ interface ExtendedAppState extends AppState {
   updateNoteInCache: (notebookId: string, noteId: string, updates: Partial<Note>) => void;
   refreshTrigger: number;
   triggerRefresh: () => void;
+  notebooks: Notebook[];
+  setNotebooks: (notebooks: Notebook[]) => void;
 }
 
 /**
@@ -21,6 +23,7 @@ export const useAppStore = create<ExtendedAppState>((set) => ({
   activeNoteId: null,
   notesCache: {},
   refreshTrigger: 0,
+  notebooks: [],
   setActiveNotebook: (id) => set({ activeNotebookId: id, activeNoteId: null }),
   setActiveNote: (id) => set({ activeNoteId: id }),
   setNotesCache: (notebookId, notes) =>
@@ -41,4 +44,5 @@ export const useAppStore = create<ExtendedAppState>((set) => ({
       };
     }),
   triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
+  setNotebooks: (notebooks) => set({ notebooks }),
 }));

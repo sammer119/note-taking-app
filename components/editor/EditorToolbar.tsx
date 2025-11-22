@@ -7,7 +7,6 @@ import {
   Italic,
   Underline as UnderlineIcon,
   Strikethrough,
-  Code,
   Heading1,
   Heading2,
   Heading3,
@@ -21,6 +20,8 @@ import {
   AlignRight,
   Highlighter,
   Image as ImageIcon,
+  Table as TableIcon,
+  SquareCode,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { uploadImage } from "@/lib/storage-adapter";
@@ -68,7 +69,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   };
 
   return (
-    <div className="sticky top-0 z-10 border-x border-t border-b p-2 flex flex-wrap gap-1 bg-editor-background rounded-t-lg">
+    <div className="sticky top-0 z-10 py-3 flex flex-wrap gap-1 bg-background">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -120,16 +121,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       </Button>
 
       <Button
-        variant={editor.isActive("code") ? "default" : "ghost"}
-        size="sm"
-        onClick={() => editor.chain().focus().toggleCode().run()}
-        title="Code"
-        className={editor.isActive("code") ? "bg-primary text-primary-foreground" : ""}
-      >
-        <Code className="h-4 w-4" />
-      </Button>
-
-      <Button
         variant={editor.isActive("highlight") ? "default" : "ghost"}
         size="sm"
         onClick={() => editor.chain().focus().toggleHighlight().run()}
@@ -138,8 +129,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       >
         <Highlighter className="h-4 w-4" />
       </Button>
-
-      <div className="w-px h-6 bg-border mx-1" />
 
       {/* Headings */}
       <Button
@@ -178,8 +167,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Heading3 className="h-4 w-4" />
       </Button>
 
-      <div className="w-px h-6 bg-border mx-1" />
-
       {/* Lists */}
       <Button
         variant={editor.isActive("bulletList") ? "default" : "ghost"}
@@ -211,7 +198,26 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <Quote className="h-4 w-4" />
       </Button>
 
-      <div className="w-px h-6 bg-border mx-1" />
+      {/* Table */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        title="Insert Table"
+      >
+        <TableIcon className="h-4 w-4" />
+      </Button>
+
+      {/* Code Block */}
+      <Button
+        variant={editor.isActive("codeBlock") ? "default" : "ghost"}
+        size="sm"
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        title="Code Block"
+        className={editor.isActive("codeBlock") ? "bg-primary text-primary-foreground" : ""}
+      >
+        <SquareCode className="h-4 w-4" />
+      </Button>
 
       {/* Alignment */}
       <Button
@@ -250,8 +256,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         <AlignRight className="h-4 w-4" />
       </Button>
 
-      <div className="w-px h-6 bg-border mx-1" />
-
       {/* Image Upload */}
       <Button
         variant="ghost"
@@ -262,8 +266,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
       >
         <ImageIcon className="h-4 w-4" />
       </Button>
-
-      <div className="w-px h-6 bg-border mx-1" />
 
       {/* Undo/Redo */}
       <Button

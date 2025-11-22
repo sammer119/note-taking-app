@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Notes - Your Digital Workspace",
+  title: "Notes",
   description: "A beautiful note-taking app inspired by Notion",
 };
 

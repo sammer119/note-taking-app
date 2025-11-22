@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus } from "lucide-react";
 
-export function NotebookList() {
+interface NotebookListProps {
+  isCollapsed?: boolean;
+}
+
+export function NotebookList({ isCollapsed = false }: NotebookListProps) {
   const { notebooks, create, update, remove } = useNotebooks();
   const { activeNotebookId, setActiveNotebook } = useAppStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -47,25 +51,29 @@ export function NotebookList() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-2 pb-3">
+      <div className="px-3 py-2">
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="w-full"
+          className="w-full justify-start bg-green-500 hover:bg-green-600 text-white border-0"
           size="sm"
-          variant="outline"
+          title={isCollapsed ? "New Notebook" : ""}
         >
-          <Plus className="h-4 w-4 mr-2" />
-          New Notebook
+          <Plus className="h-4 w-4" />
+          {!isCollapsed && <span className="ml-2">New Notebook</span>}
         </Button>
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-2 space-y-1">
+        <div className="px-3 py-2 space-y-2">
           {notebooks.length === 0 ? (
             <div className="text-center text-sm text-muted-foreground py-8">
-              No notebooks yet.
-              <br />
-              Create one to get started!
+              {!isCollapsed && (
+                <>
+                  No notebooks yet.
+                  <br />
+                  Create one to get started!
+                </>
+              )}
             </div>
           ) : (
             notebooks.map((notebook) => (
@@ -78,6 +86,7 @@ export function NotebookList() {
                   setEditingNotebook({ id: notebook.id, name: notebook.name })
                 }
                 onDelete={() => handleDelete(notebook.id)}
+                isCollapsed={isCollapsed}
               />
             ))
           )}

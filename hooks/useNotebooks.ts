@@ -6,6 +6,7 @@ import {
   getAllNotebooks,
 } from "@/lib/storage-adapter";
 import { CreateNotebookDTO, UpdateNotebookDTO, Notebook } from "@/types";
+import { useAppStore } from "@/store/store";
 
 /**
  * Custom hook for managing notebooks
@@ -15,6 +16,7 @@ export function useNotebooks() {
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const setNotebooksInStore = useAppStore((state) => state.setNotebooks);
 
   // Fetch notebooks on mount
   useEffect(() => {
@@ -27,6 +29,7 @@ export function useNotebooks() {
       setError(null);
       const data = await getAllNotebooks();
       setNotebooks(data);
+      setNotebooksInStore(data); // Update global store
     } catch (err) {
       setError(err as Error);
       console.error("Failed to load notebooks:", err);

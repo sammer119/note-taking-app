@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/use-toast";
 
 export function NoteEditor() {
   const { activeNoteId, activeNotebookId, updateNoteInCache } = useAppStore();
-  const { note, refresh } = useNote(activeNoteId);
+  const { note } = useNote(activeNoteId);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -48,8 +48,8 @@ export function NoteEditor() {
         setIsSaving(true);
         try {
           await updateNote(activeNoteId, { title: newTitle });
-          await refresh();
-          // Update the cache immediately to reflect changes in the notes list
+          // Update the cache to reflect changes in the notes list
+          // DO NOT refresh - this could overwrite user's current edits
           if (activeNotebookId) {
             updateNoteInCache(activeNotebookId, activeNoteId, { title: newTitle });
           }
@@ -58,6 +58,12 @@ export function NoteEditor() {
         } catch (error) {
           console.error("Error updating title:", error);
           setIsSaving(false);
+          toast({
+            title: "Save failed",
+            description: "Failed to save title. Please try again.",
+            variant: "destructive",
+            duration: 3000,
+          });
         }
       }, 1000);
 
@@ -76,8 +82,8 @@ export function NoteEditor() {
         setIsSaving(true);
         try {
           await updateNote(activeNoteId, { content: newContent });
-          await refresh();
-          // Update the cache immediately to reflect changes in the notes list
+          // Update the cache to reflect changes in the notes list
+          // DO NOT refresh - this could overwrite user's current edits
           if (activeNotebookId) {
             updateNoteInCache(activeNotebookId, activeNoteId, { content: newContent });
           }
@@ -86,6 +92,12 @@ export function NoteEditor() {
         } catch (error) {
           console.error("Error updating content:", error);
           setIsSaving(false);
+          toast({
+            title: "Save failed",
+            description: "Failed to save content. Please try again.",
+            variant: "destructive",
+            duration: 3000,
+          });
         }
       }, 1000);
 
@@ -96,14 +108,14 @@ export function NoteEditor() {
   const handleManualSave = async () => {
     if (!activeNoteId) return;
 
-    // Clear any pending save timeouts
+    // Clear any pending save timeouts to avoid duplicate saves
     if (titleSaveTimeout) clearTimeout(titleSaveTimeout);
     if (contentSaveTimeout) clearTimeout(contentSaveTimeout);
 
     setIsSaving(true);
     try {
       await updateNote(activeNoteId, { title, content });
-      await refresh();
+      // Update cache with current values, no refresh needed
       if (activeNotebookId) {
         updateNoteInCache(activeNotebookId, activeNoteId, { title, content });
       }
@@ -118,7 +130,7 @@ export function NoteEditor() {
         title: "Error",
         description: "Failed to save note.",
         variant: "destructive",
-        duration: 2000,
+        duration: 3000,
       });
     } finally {
       setIsSaving(false);
@@ -159,17 +171,18 @@ export function NoteEditor() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-editor-background">
-      <div className="px-8 pt-8 pb-4">
+    <div className="flex flex-col h-full bg-background min-w-0">
+      <div className="px-8 pt-6 pb-2 bg-background shrink-0">
         <Input
           ref={titleInputRef}
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="Note title"
-          className="text-3xl font-bold border-none shadow-none focus-visible:ring-0 px-0 mb-3 bg-transparent placeholder:text-muted-foreground/40"
+          className="text-2xl font-semibold border-none shadow-none focus-visible:ring-0 px-0 mb-2 bg-transparent placeholder:text-muted-foreground/30 text-foreground w-full wrap-break-word"
+          style={{ whiteSpace: 'normal', height: 'auto' }}
         />
-        <div className="flex items-center justify-between border-b border-border/30 pb-3">
-          <p className="text-[11px] text-muted-foreground/50">
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground/70">
             Last edited: {new Date(note.updatedAt).toLocaleString('en-US', {
               month: 'short',
               day: 'numeric',
@@ -180,11 +193,11 @@ export function NoteEditor() {
             })}
           </p>
           {isSaving && (
-            <span className="text-[11px] text-muted-foreground/50">Saving...</span>
+            <span className="text-xs text-muted-foreground/70">Saving...</span>
           )}
         </div>
       </div>
-      <div className="flex-1 overflow-auto px-8 pb-8">
+      <div className="flex-1 overflow-auto bg-background min-w-0">
         <Editor
           content={content}
           onChange={handleContentChange}

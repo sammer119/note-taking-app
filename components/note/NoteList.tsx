@@ -9,7 +9,7 @@ import { Plus } from "lucide-react";
 import { useEffect } from "react";
 
 export function NoteList() {
-  const { activeNotebookId, activeNoteId, setActiveNote } = useAppStore();
+  const { activeNotebookId, activeNoteId, setActiveNote, notebooks } = useAppStore();
   const { notes, create, remove } = useNotes(activeNotebookId);
 
   // Auto-select the first note (most recently edited) when notes are loaded
@@ -47,17 +47,27 @@ export function NoteList() {
     );
   }
 
+  const activeNotebook = notebooks.find((nb) => nb.id === activeNotebookId);
+
   return (
     <div className="flex flex-col h-full">
-      <div className="p-2 pb-3">
-        <Button onClick={handleCreateNote} className="w-full" size="sm" variant="outline">
+      <div className="p-2 pb-3 space-y-3">
+        <div className="flex items-center justify-between px-2 gap-2">
+          <h2 className="font-semibold text-lg truncate min-w-0 flex-1">
+            {activeNotebook?.name || "Notes"}
+          </h2>
+          <p className="text-xs text-muted-foreground shrink-0">
+            {notes.length} {notes.length === 1 ? "note" : "notes"}
+          </p>
+        </div>
+        <Button onClick={handleCreateNote} className="w-full bg-green-500 hover:bg-green-600 text-white border-0" size="sm">
           <Plus className="h-4 w-4 mr-2" />
           New Note
         </Button>
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="pl-2 pr-3 py-2 space-y-2">
+        <div className="pl-2 pr-3 py-2 space-y-3">
           {notes.length === 0 ? (
             <div className="text-center text-sm text-muted-foreground py-8">
               No notes yet.

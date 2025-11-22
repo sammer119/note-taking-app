@@ -95,7 +95,7 @@ export function useNote(noteId: string | null) {
       setLoading(true);
       setError(null);
       const data = await getNote(noteId);
-      setNote(data);
+      setNote(data || null);
     } catch (err) {
       setError(err as Error);
       console.error("Failed to load note:", err);

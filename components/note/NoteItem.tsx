@@ -2,7 +2,7 @@
 
 import { Note } from "@/types";
 import { cn } from "@/lib/utils";
-import { FileText, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface NoteItemProps {
@@ -13,82 +13,130 @@ interface NoteItemProps {
 }
 
 export function NoteItem({ note, isActive, onClick, onDelete }: NoteItemProps) {
-  const getPreviewText = (html: string) => {
+  const getContentPreview = (html: string) => {
     const temp = document.createElement("div");
     temp.innerHTML = html;
+
+    // Parse content to maintain order
+    let textPreview = "";
+    let imageUrl: string | null = null;
+    let imageFirst = false;
+
+    // Check if first child is an image
+    const firstChild = temp.firstChild;
+    if (firstChild && firstChild.nodeName === 'IMG') {
+      imageFirst = true;
+      imageUrl = (firstChild as HTMLImageElement).src;
+    } else if (firstChild && firstChild.nodeName === 'P') {
+      const img = (firstChild as HTMLElement).querySelector('img');
+      if (img) {
+        imageFirst = true;
+        imageUrl = img.src;
+      }
+    }
+
+    // Get text preview (limited to 60 chars)
     const text = temp.textContent || temp.innerText || "";
-    return text.slice(0, 100);
+    textPreview = text.slice(0, 60);
+
+    // If we haven't found an image yet, look for any image
+    if (!imageUrl) {
+      const img = temp.querySelector("img");
+      imageUrl = img?.src || null;
+    }
+
+    return { textPreview, imageUrl, imageFirst };
   };
 
   const getTitleDisplay = () => {
+    let title = "";
     if (note.title && note.title !== "Untitled Note") {
-      return note.title;
+      title = note.title;
+    } else {
+      // If no title or is "Untitled Note", use first few words of content
+      const { textPreview } = getContentPreview(note.content);
+      if (textPreview) {
+        const firstLine = textPreview.split('\n')[0].slice(0, 40);
+        title = firstLine || "New Note";
+      } else {
+        title = "New Note";
+      }
     }
-    // If no title or is "Untitled Note", use first few words of content
-    const preview = getPreviewText(note.content);
-    if (preview) {
-      const firstLine = preview.split('\n')[0].slice(0, 40);
-      return firstLine || "New Note";
+
+    // Truncate to 25 characters with ellipsis
+    if (title.length > 25) {
+      return title.slice(0, 25) + "...";
     }
-    return "New Note";
+    return title;
   };
 
   const formatDate = (date: Date) => {
-    const now = new Date();
     const noteDate = new Date(date);
-    const diffTime = Math.abs(now.getTime() - noteDate.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return noteDate.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-      });
-    } else if (diffDays === 1) {
-      return "Yesterday";
-    } else if (diffDays < 7) {
-      return noteDate.toLocaleDateString("en-US", { weekday: "short" });
-    } else {
-      return noteDate.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
-    }
+    return noteDate.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
   };
 
   const isUntitled = !note.title || note.title === "Untitled Note";
+  const { textPreview, imageUrl, imageFirst } = getContentPreview(note.content);
 
   return (
     <div
       className={cn(
-        "group p-3 rounded-lg cursor-pointer transition-all duration-200 border",
+        "group p-4 rounded-lg cursor-pointer transition-all duration-200 border",
         isActive
-          ? "bg-card border-border border-l-4 border-l-primary"
+          ? "bg-card border-blue-500!"
           : "bg-card/50 border-border/30 hover:bg-card/70 hover:border-border/50"
       )}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <FileText className="h-3 w-3 text-muted-foreground/70 flex-shrink-0" />
+          <div className="mb-1">
             <h3 className={cn(
-              "font-medium text-sm truncate",
-              isActive ? "text-foreground" : "text-muted-foreground",
+              "font-semibold text-sm truncate",
+              isActive ? "text-foreground" : "text-foreground/90",
               isUntitled && "italic"
             )}>
               {getTitleDisplay()}
             </h3>
           </div>
+
+          {/* Show content in original order */}
+          {imageFirst && imageUrl && (
+            <div className="mb-1">
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="w-full h-20 object-cover rounded border border-border/50"
+              />
+            </div>
+          )}
+
           <p className={cn(
-            "text-xs line-clamp-2 wrap-break-word",
-            isActive ? "text-muted-foreground/80" : "text-muted-foreground/60"
+            "text-xs line-clamp-2 break-all overflow-hidden",
+            isActive ? "text-foreground/90" : "text-foreground/70"
           )}>
-            {getPreviewText(note.content)}
+            {textPreview}
           </p>
+
+          {!imageFirst && imageUrl && (
+            <div className="mt-1 mb-1">
+              <img
+                src={imageUrl}
+                alt="Preview"
+                className="w-full h-20 object-cover rounded border border-border/50"
+              />
+            </div>
+          )}
+
           <p className={cn(
-            "text-[10px] mt-1",
-            isActive ? "text-muted-foreground/60" : "text-muted-foreground/50"
+            "text-[11px] mt-1",
+            isActive ? "text-muted-foreground/70" : "text-muted-foreground/60"
           )}>
             {formatDate(note.updatedAt)}
           </p>
@@ -96,7 +144,7 @@ export function NoteItem({ note, isActive, onClick, onDelete }: NoteItemProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 hover:bg-transparent"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
